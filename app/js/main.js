@@ -147,7 +147,9 @@
 			    	shipName = battleField[index].ship;
 			    	battleField[index].ship = 'hit';
 			    	console.log('Player hit: ' + playerShoot);
-
+			    	if (isShipSunk(shipName)) {
+			    		console.log('Ship ' + shipName + ' sunk');
+			    	}
 			    	playerShooting();
 			    } else {
 			    	battleField[index].ship = 'missed';
@@ -155,7 +157,7 @@
 			    	cpuShooting();
 			    }
 			} else {
-				console.log('k0');
+				console.log('wrong coordinates, please insert again');
 				playerShooting();
 			}
 		}
@@ -170,6 +172,37 @@
 			battleField[index].ship = 'missed';
 			console.log('Cpu missed');
 			playerShooting();
+		}
+	}
+
+	function isShipSunk(shipName) {
+		var ships = [
+			{
+				size: 5,
+				name: "battleship",
+				hit: 0
+			},
+			{
+				size: 4,
+				name: "destroyer-1",
+				hit: 0
+			},
+			{
+				size: 4,
+				name: "destroyer-2",
+				hit: 0
+			}
+		];
+
+		for (var i = 0; i < ships.size; i++) {
+			if(ships[i].name === shipName) {
+				ships[i].hit++;
+			}
+			if(ships[i].size === ships[i].hit) {
+				return true;
+			} else {
+				return false;
+			}
 		}
 	}
 	// visual part to see and debug
