@@ -1,0 +1,25 @@
+span {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  border: 1px solid #999;
+  color: #e7e7e7;
+}
+.ship-battleship {
+  background: yellow;
+}
+.ship-destroyer-1 {
+	background: #000;
+}
+.ship-destroyer-2 {
+	background: blue;
+}
+
+.ship-hit {
+  background: red;
+}
+.ship-missed {
+  background: grey;
+}
