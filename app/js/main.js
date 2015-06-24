@@ -59,9 +59,13 @@
 		for (var i = 0; i < ships.length; i++) {
 			positionRandomShip(ships[i]);
 		}
-
 	}
 	
+	// game initialization
+	initGame();
+
+
+	// HELPERS
 	// Check if the ship can stay in the space
 	function __checkIfSpaceIsFree(index, shipLength) {
 		if (removedSquare.indexOf(index) === -1) { 
@@ -122,16 +126,12 @@
 		return axis;
 	}
 
-
-	// game initialization
-	initGame();
-
 	var battleFieldArray = battleField.map(function(s, i) {
 		return s.y + s.x;
 	});
 
-	function playerShooting () {
-		var playerShoot = prompt("Insert coordinate to shoot"),
+	function playerShooting (coord) {
+		var playerShoot = coord,
 			alphabet = "abcdefghij".toUpperCase();
 
 
@@ -148,8 +148,11 @@
 			    	battleField[index].ship = 'hit';
 			    	console.log('Player hit: ' + playerShoot);
 			    	if (isShipSunk(shipName)) {
-			    		console.log('Ship ' + shipName + ' sunk');
-			    	}
+			    		console.log(shipName + ' sunk');
+			    		if(isGameFinish(shipName)) {
+			    			console.log('You win!');	
+			    		};
+			    	} 
 			    	playerShooting();
 			    } else {
 			    	battleField[index].ship = 'missed';
@@ -174,40 +177,46 @@
 			playerShooting();
 		}
 	}
-
+	var shipsToSunk = [
+		{
+			size: 5,
+			name: "battleship",
+			hit: 0
+		},
+		{
+			size: 4,
+			name: "destroyer-1",
+			hit: 0
+		},
+		{
+			size: 4,
+			name: "destroyer-2",
+			hit: 0
+		}
+	];
 	function isShipSunk(shipName) {
-		var ships = [
-			{
-				size: 5,
-				name: "battleship",
-				hit: 0
-			},
-			{
-				size: 4,
-				name: "destroyer-1",
-				hit: 0
-			},
-			{
-				size: 4,
-				name: "destroyer-2",
-				hit: 0
-			}
-		];
-
-		for (var i = 0; i < ships.size; i++) {
-			if(ships[i].name === shipName) {
-				ships[i].hit++;
-			}
-			if(ships[i].size === ships[i].hit) {
-				return true;
-			} else {
-				return false;
-			}
+		var ship = _.find(shipsToSunk, {"name": shipName});
+		ship.hit++;		
+		if(ship.size === ship.hit) {
+			return true;
+		} else {
+			return false;
 		}
 	}
+
+	function isGameFinish(shipName) {
+		var ship = _.find(shipsToSunk, {"name": shipName});
+		var index = shipsToSunk.indexOf(ship);
+		shipsToSunk.splice(index, 1);
+		if (shipsToSunk.length > 0) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
 	// visual part to see and debug
 	
-playerShooting();
 	var htmlBattleField = '';
 	for (var i = 1; i <= battleFieldArray.length; i++) {
 		htmlBattleField += '<span class="ship-' + battleField[i - 1].ship + '">' + battleFieldArray[i - 1] + '</span>';
@@ -216,5 +225,10 @@ playerShooting();
 		}
 	}
 	document.getElementById("content").innerHTML = htmlBattleField;
+
+	document.getElementById("submit").addEventListener('click', function (e) {
+		e.preventDefault();
+		playerShooting(document.getElementById("coordinates").value);
+	});
 
 })()
