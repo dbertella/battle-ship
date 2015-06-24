@@ -1,8 +1,13 @@
 (function() {
 	
 	var removedSquare = [],
-		battleField = __createField(10);
-	
+		battleField = __createField(10),
+		feedback = '',
+		battleFieldArray = battleField.map(function(s, i) {
+			return s.y + s.x;
+		});
+
+
 	var positionRandomShip = function(ship) {
 		var index = __randomElement();
 
@@ -64,7 +69,6 @@
 	// game initialization
 	initGame();
 
-
 	// HELPERS
 	// Check if the ship can stay in the space
 	function __checkIfSpaceIsFree(index, shipLength) {
@@ -108,9 +112,10 @@
 	// store the array of object of coordinates
 	function __protoCoordinate(xVal, yVal, array) {
 		array.push({
-		x: xVal,
-		y: yVal,
-		ship: false
+			x: xVal,
+			y: yVal,
+			ship: false,
+			shooted: false
 		});
 	}
 	// creating the field that take the size as a parameter
@@ -126,57 +131,73 @@
 		return axis;
 	}
 
-	var battleFieldArray = battleField.map(function(s, i) {
-		return s.y + s.x;
-	});
-
 	function playerShooting (coord) {
-		var playerShoot = coord,
-			alphabet = "abcdefghij".toUpperCase();
 
-
-
-		if (playerShoot != null) {
-			playerShoot = playerShoot.toUpperCase()
-			if(alphabet.indexOf(playerShoot[0]) > -1 && playerShoot[1] >= 0 && playerShoot[1] < 10 ) {
-
-			    var index = battleFieldArray.indexOf(playerShoot),
+		if(__checkCoord(coord)) {
+			if (__isCoordNotUsed(coord)) {
+				var playerShoot = coord.toUpperCase(),
+					index = battleFieldArray.indexOf(playerShoot),
 			    	shipName;
-
+			    
 			    if (battleField[index].ship) {
 			    	shipName = battleField[index].ship;
 			    	battleField[index].ship = 'hit';
 			    	console.log('Player hit: ' + playerShoot);
-			    	if (isShipSunk(shipName)) {
+			    	feedback = '<p class="user">Player hit: ' + playerShoot + '</p>' + feedback;
+			    	if (__isShipSunk(shipName)) {
 			    		console.log(shipName + ' sunk');
-			    		if(isGameFinish(shipName)) {
-			    			console.log('You win!');	
-			    		};
+			    		feedback = '<p class="user">!!! ' + shipName + ' sunk !!!</p>' + feedback;
+			    		if(__isGameFinish(shipName)) {
+			    			console.log('You win!');
+			    			feedback = '<p class="user">### You win! ###</p>' + feedback;
+			    		} else {
+			    			feedback = '<p class="user">Your turn again</p>' + feedback;
+			    		}
 			    	} 
-			    	playerShooting();
+			    	//playerShooting();
 			    } else {
 			    	battleField[index].ship = 'missed';
 			    	console.log('Player missed: ' + playerShoot);
+			    	
+			    	feedback = '<p class="user">Player missed: ' + playerShoot + '</p>' + feedback;
+
 			    	cpuShooting();
 			    }
 			} else {
-				console.log('wrong coordinates, please insert again');
-				playerShooting();
+				console.log('coordinates used already, please insert again');
+				feedback = '<p class="err">Coordinates used already, please insert again</p>' + feedback;
+				//playerShooting();
 			}
+			document.getElementById('feedback').innerHTML = feedback;
+			drawTheHtml();
+			
+		} else {
+			console.log('wrong coordinates, please insert again');
+			feedback = '<p class="err">Wrong coordinates, please insert again</p>' + feedback;
+			document.getElementById('feedback').innerHTML = feedback;
+			//playerShooting();
 		}
 	}
 	function cpuShooting() {
 		var index = __randomElement();
-		if (battleField[index].ship) {
-			battleField[index].ship = 'hit';
-			console.log('Cpu hit' );
-			cpuShooting();
+
+		if(__isCoordNotUsed(0, index)) {
+			if (battleField[index].ship) {
+				battleField[index].ship = 'hit';
+				console.log('Cpu hit ' + battleField[index].x,battleField[index].y);
+				feedback = '<p class="cpu">Cpu hit</p>' + feedback;
+				cpuShooting();
+			} else {
+				battleField[index].ship = 'missed';
+				console.log('Cpu missed');
+				console.log('Is your turn');
+				feedback = '<p class="cpu">Cpu missed! Is your turn</p>' + feedback;
+			}
 		} else {
-			battleField[index].ship = 'missed';
-			console.log('Cpu missed');
-			playerShooting();
+			cpuShooting();
 		}
 	}
+	
 	var shipsToSunk = [
 		{
 			size: 5,
@@ -194,7 +215,35 @@
 			hit: 0
 		}
 	];
-	function isShipSunk(shipName) {
+
+	function __checkCoord(coord) {
+		var alphabet = "abcdefghij".toUpperCase();
+		if (coord) {
+			coord = coord.toUpperCase();
+			if (alphabet.indexOf(coord[0]) > -1 && coord[1] >= 0 && coord[1] < 10 ) {
+				return true;
+			}
+		}
+		return false;
+		
+	}
+	// checking if the coordinate is already being used
+	function __isCoordNotUsed(coord, i) {
+		var index;
+		if (coord) {
+			index = battleFieldArray.indexOf(coord.toUpperCase());
+		} else {
+			index = i;
+		}
+		if (battleField[index].shooted === true) {
+			return false;
+		} else {
+			battleField[index].shooted = true;
+			return true;
+		}
+	}
+	// checking if ship is sunk
+	function __isShipSunk(shipName) {
 		var ship = _.find(shipsToSunk, {"name": shipName});
 		ship.hit++;		
 		if(ship.size === ship.hit) {
@@ -203,8 +252,8 @@
 			return false;
 		}
 	}
-
-	function isGameFinish(shipName) {
+	// checking if all the ships are sunk
+	function __isGameFinish(shipName) {
 		var ship = _.find(shipsToSunk, {"name": shipName});
 		var index = shipsToSunk.indexOf(ship);
 		shipsToSunk.splice(index, 1);
@@ -216,15 +265,18 @@
 	}
 
 	// visual part to see and debug
-	
-	var htmlBattleField = '';
-	for (var i = 1; i <= battleFieldArray.length; i++) {
-		htmlBattleField += '<span class="ship-' + battleField[i - 1].ship + '">' + battleFieldArray[i - 1] + '</span>';
-		if (i % 10 === 0) {
-			htmlBattleField += '<br />';
+	function drawTheHtml() {
+		var htmlBattleField = '';
+		for (var i = 1; i <= battleFieldArray.length; i++) {
+			htmlBattleField += '<span class="ship-' + battleField[i - 1].ship + '">' + battleFieldArray[i - 1] + '</span>';
+			if (i % 10 === 0) {
+				htmlBattleField += '<br />';
+			}
 		}
+		document.getElementById("content").innerHTML = htmlBattleField;
 	}
-	document.getElementById("content").innerHTML = htmlBattleField;
+	
+	drawTheHtml();
 
 	document.getElementById("submit").addEventListener('click', function (e) {
 		e.preventDefault();
