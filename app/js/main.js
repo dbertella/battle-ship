@@ -199,7 +199,7 @@
           }
         }
         var newIndex = __cpuIntelligence(index);
-        debugger;
+        //debugger;
         cpuShooting(newIndex);
 
       } else {
@@ -214,11 +214,27 @@
   }
 
   function __cpuIntelligence(index) {
-    debugger;
-    var possibleIndex = [index + 10, index - 10, index + 1, index - 1];
-    var rand = Math.floor(Math.random() * 3);
+    var possibleIndex = [];
+    if (index <= 10) {
+    	if (index == 0) {
+    		possibleIndex = [index + 10, index + 1];
+    	} else {
+    		possibleIndex = [index + 10, index + 1, index - 1];
+    	}
+    } else if (index >= 90) {
+    	if (index == 99) {
+    		possibleIndex = [index - 10, index - 1];
+    	} else {
+    		possibleIndex = [index - 10, index + 1, index - 1];
+    	}
+    } else {
+    	possibleIndex = [index - 10, index + 10, index + 1, index - 1];
+    }
+    var rand = function (val) {
+    	return Math.floor(Math.random() * val);
+    }
 
-    return possibleIndex[rand];
+    return possibleIndex[rand(possibleIndex.length -1)];
   }
 
   function __checkCoord(coord) {
