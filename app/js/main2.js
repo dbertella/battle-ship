@@ -6,7 +6,20 @@
     battleFieldArray = battleField.map(function(s, i) {
       return s.y + s.x;
     }),
-    shipsArray = [{
+    // shipsArray = [{
+    //   size: 5,
+    //   name: "battleship",
+    //   hit: 0
+    // }, {
+    //   size: 4,
+    //   name: "destroyer-1",
+    //   hit: 0
+    // }, {
+    //   size: 4,
+    //   name: "destroyer-2",
+    //   hit: 0
+    // }],
+    shipsToSunk = [{
       size: 5,
       name: "battleship",
       hit: 0
@@ -18,8 +31,8 @@
       size: 4,
       name: "destroyer-2",
       hit: 0
-    }],
-    shipsToSunk = shipsArray.slice(0);
+    }];
+    //shipsArray.slice(0);
 
   var positionRandomShip = function(ship) {
     var index = __randomElement();
@@ -28,29 +41,17 @@
       battleField[index].ship = ship.name;
       // removeSquare is the array to keep track of every square already used.
       //I'll add all the square around the one used to avoid ship collision
-      removedSquare = removedSquare.concat([index, 
-                                            index + 1, 
-                                            index - 1, 
-                                            index + 10, 
-                                            index - 10]);
+      removedSquare = removedSquare.concat([index, index + 1, index - 1, index + 10, index - 10]);
 
       // if random is even the ship is in vertical position 
       if (index % 2 === 0) {
         for (var inc = 1; inc < ship.size; inc++) {
           if (battleField[index].x <= 5) {
             battleField[index + inc].ship = ship.name;
-            removedSquare = removedSquare.concat([index + inc, 
-                                                  index + inc + 1, 
-                                                  index + inc - 1, 
-                                                  index + inc + 10, 
-                                                  index + inc - 10]);
+            removedSquare = removedSquare.concat([index + inc, index + inc + 1, index + inc - 1, index + inc + 10, index + inc - 10]);
           } else {
             battleField[index - inc].ship = ship.name;
-            removedSquare = removedSquare.concat([index - inc, 
-                                                  index - inc + 1, 
-                                                  index - inc - 1, 
-                                                  index - inc + 10, 
-                                                  index - inc - 10]);
+            removedSquare = removedSquare.concat([index - inc, index - inc + 1, index - inc - 1, index - inc + 10, index - inc - 10]);
           }
         }
       } else {
@@ -58,18 +59,10 @@
         for (var j = 1; j < ship.size; j++) {
           if (index <= 50) {
             battleField[index + j * 10].ship = ship.name;
-            removedSquare = removedSquare.concat([index + j * 10, 
-                                                  index + j * 10 + 1, 
-                                                  index + j * 10 - 1, 
-                                                  index + j * 10 + 10, 
-                                                  index + j * 10 - 10]);
+            removedSquare = removedSquare.concat([index + j * 10, index + j * 10 + 1, index + j * 10 - 1, index + j * 10 + 10, index + j * 10 - 10]);
           } else {
             battleField[index - j * 10].ship = ship.name;
-            removedSquare = removedSquare.concat([index - j * 10, 
-                                                  index - j * 10 + 1, 
-                                                  index - j * 10 - 1, 
-                                                  index - j * 10 + 10, 
-                                                  index - j * 10 - 10]);
+            removedSquare = removedSquare.concat([index - j * 10, index - j * 10 + 1, index - j * 10 - 1, index - j * 10 + 10, index - j * 10 - 10]);
           }
         }
       }
@@ -79,21 +72,21 @@
   }
   
   function initGame() {
-    /*var ships = [{
-      length: 5,
+    var ships = [{
+      size: 5,
       name: "battleship",
       hit: 0
     }, {
-      length: 4,
+      size: 4,
       name: "destroyer-1",
       hit: 0
     }, {
-      length: 4,
+      size: 4,
       name: "destroyer-2",
       hit: 0
-    }];*/
-    for (var i = 0; i < shipsArray.length; i++) {
-      positionRandomShip(shipsArray[i]);
+    }];
+    for (var i = 0; i < ships.length; i++) {
+      positionRandomShip(ships[i]);
     }
   }
 
@@ -299,6 +292,7 @@
   document.getElementById("submit").addEventListener('click', function(e) {
     e.preventDefault();
     playerShooting(document.getElementById("coordinates").value);
+    document.getElementById("coordinates").value = '';
   });
 
 })()
