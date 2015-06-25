@@ -6,20 +6,7 @@
     battleFieldArray = battleField.map(function(s, i) {
       return s.y + s.x;
     }),
-    // shipsArray = [{
-    //   size: 5,
-    //   name: "battleship",
-    //   hit: 0
-    // }, {
-    //   size: 4,
-    //   name: "destroyer-1",
-    //   hit: 0
-    // }, {
-    //   size: 4,
-    //   name: "destroyer-2",
-    //   hit: 0
-    // }],
-    shipsToSunk = [{
+    shipsArray = [{
       size: 5,
       name: "battleship",
       hit: 0
@@ -31,13 +18,13 @@
       size: 4,
       name: "destroyer-2",
       hit: 0
-    }];
-    //shipsArray.slice(0);
+    }],
+    shipsToSunk = shipsArray.slice(0);
 
   var positionRandomShip = function(ship) {
     var index = __randomElement();
 
-    if (__checkIfSpaceIsFree(index, ship.length)) {
+    if (__checkIfSpaceIsFree(index, ship.size)) {
       battleField[index].ship = ship.name;
       // removeSquare is the array to keep track of every square already used.
       //I'll add all the square around the one used to avoid ship collision
@@ -72,21 +59,9 @@
   }
   
   function initGame() {
-    var ships = [{
-      size: 5,
-      name: "battleship",
-      hit: 0
-    }, {
-      size: 4,
-      name: "destroyer-1",
-      hit: 0
-    }, {
-      size: 4,
-      name: "destroyer-2",
-      hit: 0
-    }];
-    for (var i = 0; i < ships.length; i++) {
-      positionRandomShip(ships[i]);
+   
+    for (var i = 0; i < shipsArray.length; i++) {
+      positionRandomShip(shipsArray[i]);
     }
   }
 
@@ -203,24 +178,47 @@
     }
   }
 
-  function cpuShooting() {
-    var index = __randomElement();
+  function cpuShooting(i) {
+    var index = i || __randomElement();
 
     if (__isCoordNotUsed(0, index)) {
       if (battleField[index].ship) {
+        
+        shipName = battleField[index].ship;
         battleField[index].ship = 'hit';
-        console.log('Cpu hit ' + battleField[index].x, battleField[index].y);
-        feedback = '<p class="cpu">Cpu hit</p>' + feedback;
-        cpuShooting();
+        console.log('CPU hit ' + battleField[index].x, battleField[index].y);
+        feedback = '<p class="cpu">CPU hit</p>' + feedback;
+        if (__isShipSunk(shipName)) {
+          console.log(shipName + ' sunk');
+          feedback = '<p class="cpu">!!! ' + shipName + ' sunk !!!</p>' + feedback;
+          if (__isGameFinish(shipName)) {
+            console.log('You win!');
+            feedback = '<p class="cpu">### CPU win! ###</p>' + feedback;
+          } else {
+            feedback = '<p class="cpu">CPU play again</p>' + feedback;
+          }
+        }
+        var newIndex = __cpuIntelligence(index);
+        debugger;
+        cpuShooting(newIndex);
+
       } else {
         battleField[index].ship = 'missed';
-        console.log('Cpu missed');
+        console.log('Cpu missed' + battleField[index].x, battleField[index].y);
         console.log('Is your turn');
         feedback = '<p class="cpu">Cpu missed! Is your turn</p>' + feedback;
       }
     } else {
       cpuShooting();
     }
+  }
+
+  function __cpuIntelligence(index) {
+    debugger;
+    var possibleIndex = [index + 10, index - 10, index + 1, index - 1];
+    var rand = Math.floor(Math.random() * 3);
+
+    return possibleIndex[rand];
   }
 
   function __checkCoord(coord) {
