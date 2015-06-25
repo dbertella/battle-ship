@@ -214,7 +214,9 @@
   }
 
   function __cpuIntelligence(index) {
-    var possibleIndex = [];
+    var possibleIndex = [],
+    	returnIndexArray = [];
+
     if (index <= 10) {
     	if (index == 0) {
     		possibleIndex = [index + 10, index + 1];
@@ -230,11 +232,20 @@
     } else {
     	possibleIndex = [index - 10, index + 10, index + 1, index - 1];
     }
+    returnIndexArray = possibleIndex.slice(0);
+    
+    // TODO check if the coordinate is already being used
+    // _.forEach(possibleIndex, function (i) {
+    // 	if (removedSquare.indexOf(i) > 1) {
+    // 		console.log(i, "da eliminare ", removedSquare.indexOf(i));
+    // 		returnIndexArray.splice(removedSquare.indexOf(i), 1);
+    // 	}
+    // });
+
     var rand = function (val) {
     	return Math.floor(Math.random() * val);
     }
-
-    return possibleIndex[rand(possibleIndex.length -1)];
+    return returnIndexArray[rand(possibleIndex.length -1)];
   }
 
   function __checkCoord(coord) {
