@@ -1,7 +1,7 @@
 (function() {
 
   var removedSquare = [],
-    battleField = __createField(10),
+    battleField = createField(10),
     feedback = '',
     battleFieldArray = battleField.map(function(s, i) {
       return s.y + s.x;
@@ -21,10 +21,10 @@
     }],
     shipsToSunk = shipsArray.slice(0);
 
-  var positionRandomShip = function(ship) {
-    var index = __randomElement();
+  function positionRandomShip(ship) {
+    var index = randomElement();
 
-    if (__checkIfSpaceIsFree(index, ship.size)) {
+    if (checkIfSpaceIsFree(index, ship.size)) {
       battleField[index].ship = ship.name;
       // removeSquare is the array to keep track of every square already used.
       //I'll add all the square around the one used to avoid ship collision
@@ -63,14 +63,12 @@
     for (var i = 0; i < shipsArray.length; i++) {
       positionRandomShip(shipsArray[i]);
     }
+    drawTheHtml();
   }
-
-  // game initialization
-  initGame();
 
   // HELPERS
   // Check if the ship can stay in the space
-  function __checkIfSpaceIsFree(index, shipLength) {
+  function checkIfSpaceIsFree(index, shipLength) {
     if (removedSquare.indexOf(index) === -1) {
       if (index % 2 === 0) {
         for (var inc = 1; inc < shipLength; inc++) {
@@ -105,11 +103,11 @@
   }
 
   // Get a random position
-  function __randomElement() {
+  function randomElement() {
       return Math.floor(Math.random() * 100);
-    }
+  }
     // store the array of object of coordinates
-  function __protoCoordinate(xVal, yVal, array) {
+  function protoCoordinate(xVal, yVal, array) {
       array.push({
         x: xVal,
         y: yVal,
@@ -118,13 +116,13 @@
       });
     }
     // creating the field that take the size as a parameter
-  function __createField(sizeXY) {
+  function createField(sizeXY) {
     var axis = [],
       alphabet = "abcdefghijklmnopqrstuvwxyz".toUpperCase();
 
     for (var y = 0; y < sizeXY; y++) {
       for (var x = 0; x < sizeXY; x++) {
-        __protoCoordinate(x, alphabet[y], axis);
+        protoCoordinate(x, alphabet[y], axis);
       }
     }
     return axis;
@@ -132,8 +130,8 @@
 
   function playerShooting(coord) {
 
-    if (__checkCoord(coord)) {
-      if (__isCoordNotUsed(coord)) {
+    if (checkCoord(coord)) {
+      if (isCoordNotUsed(coord)) {
         var playerShoot = coord.toUpperCase(),
           index = battleFieldArray.indexOf(playerShoot),
           shipName;
@@ -143,12 +141,12 @@
           battleField[index].ship = 'hit';
           console.log('Player hit: ' + playerShoot);
           feedback = '<p class="user">Player hit: ' + playerShoot + '</p>' + feedback;
-          if (__isShipSunk(shipName)) {
+          if (isShipSunk(shipName)) {
             console.log(shipName + ' sunk');
-            feedback = '<p class="user">!!! ' + shipName + ' sunk !!!</p>' + feedback;
-            if (__isGameFinish(shipName)) {
+            feedback = '<p class="red">!!! ' + shipName + ' sunk !!!</p>' + feedback;
+            if (isGameFinish(shipName)) {
               console.log('You win!');
-              feedback = '<p class="user">### You win! ###</p>' + feedback;
+              feedback = '<p class="red">### You win! ###</p>' + feedback;
             } else {
               feedback = '<p class="user">Your turn again</p>' + feedback;
             }
@@ -179,26 +177,27 @@
   }
 
   function cpuShooting(i) {
-    var index = i || __randomElement();
+    var index = i || randomElement();
 
-    if (__isCoordNotUsed(0, index)) {
+    if (isCoordNotUsed(0, index)) {
       if (battleField[index].ship) {
         
         shipName = battleField[index].ship;
         battleField[index].ship = 'hit';
         console.log('CPU hit ' + battleField[index].x, battleField[index].y);
         feedback = '<p class="cpu">CPU hit</p>' + feedback;
-        if (__isShipSunk(shipName)) {
+        if (isShipSunk(shipName)) {
           console.log(shipName + ' sunk');
-          feedback = '<p class="cpu">!!! ' + shipName + ' sunk !!!</p>' + feedback;
-          if (__isGameFinish(shipName)) {
-            console.log('You win!');
-            feedback = '<p class="cpu">### CPU win! ###</p>' + feedback;
+          feedback = '<p class="red">!!! ' + shipName + ' sunk !!!</p>' + feedback;
+          if (isGameFinish(shipName)) {
+            console.log('Cpu win!');
+            feedback = '<p class="red">### CPU win! ###</p>' + feedback;
+            return;
           } else {
             feedback = '<p class="cpu">CPU play again</p>' + feedback;
           }
         }
-        var newIndex = __cpuIntelligence(index);
+        var newIndex = cpuIntelligence(index);
         //debugger;
         cpuShooting(newIndex);
 
@@ -213,7 +212,7 @@
     }
   }
 
-  function __cpuIntelligence(index) {
+  function cpuIntelligence(index) {
     var possibleIndex = [],
     	returnIndexArray = [];
 
@@ -234,21 +233,13 @@
     }
     returnIndexArray = possibleIndex.slice(0);
     
-    // TODO check if the coordinate is already being used
-    // _.forEach(possibleIndex, function (i) {
-    // 	if (removedSquare.indexOf(i) > 1) {
-    // 		console.log(i, "da eliminare ", removedSquare.indexOf(i));
-    // 		returnIndexArray.splice(removedSquare.indexOf(i), 1);
-    // 	}
-    // });
-
     var rand = function (val) {
     	return Math.floor(Math.random() * val);
     }
     return returnIndexArray[rand(possibleIndex.length -1)];
   }
 
-  function __checkCoord(coord) {
+  function checkCoord(coord) {
       var alphabet = "abcdefghij".toUpperCase();
       if (coord) {
         coord = coord.toUpperCase();
@@ -260,7 +251,7 @@
 
     }
     // checking if the coordinate is already being used
-  function __isCoordNotUsed(coord, i) {
+  function isCoordNotUsed(coord, i) {
       var index;
       if (coord) {
         index = battleFieldArray.indexOf(coord.toUpperCase());
@@ -275,7 +266,7 @@
       }
     }
     // checking if ship is sunk
-  function __isShipSunk(shipName) {
+  function isShipSunk(shipName) {
       var ship = _.find(shipsToSunk, {
         "name": shipName
       });
@@ -287,7 +278,7 @@
       }
     }
     // checking if all the ships are sunk
-  function __isGameFinish(shipName) {
+  function isGameFinish(shipName) {
     var ship = _.find(shipsToSunk, {
       "name": shipName
     });
@@ -296,6 +287,8 @@
     if (shipsToSunk.length > 0) {
       return false;
     } else {
+    	document.getElementById("coordinates").disabled = true;
+    	document.getElementById("submit").disabled = true;
       return true;
     }
   }
@@ -312,12 +305,12 @@
     document.getElementById("content").innerHTML = htmlBattleField;
   }
 
-  drawTheHtml();
-
   document.getElementById("submit").addEventListener('click', function(e) {
     e.preventDefault();
     playerShooting(document.getElementById("coordinates").value);
     document.getElementById("coordinates").value = '';
   });
 
+  // game initialization
+  initGame();
 })()
